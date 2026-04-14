@@ -1,0 +1,19 @@
+{
+  "run_id": "run_20260414_164304_q14_14_20260414_164304_575437",
+  "task": "Nhân viên vừa vào thử việc (trong probation period) muốn làm remote vì lý do cá nhân. Điều kiện là gì?",
+  "supervisor_route": "retrieval_worker",
+  "route_reason": "default route",
+  "workers_called": [
+    "retrieval_worker",
+    "synthesis_worker"
+  ],
+  "mcp_tools_used": [],
+  "retrieved_sources": [
+    "sla_p1_2026.txt"
+  ],
+  "final_answer": "[PLACEHOLDER] Câu trả lời được tổng hợp từ 1 chunks.",
+  "confidence": 0.75,
+  "hitl_triggered": false,
+  "latency_ms": 0,
+  "timestamp": "2026-04-14T16:43:04"
+}

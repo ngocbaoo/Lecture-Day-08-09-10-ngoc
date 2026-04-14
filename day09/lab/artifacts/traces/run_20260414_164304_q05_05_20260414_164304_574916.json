@@ -1,0 +1,19 @@
+{
+  "run_id": "run_20260414_164304_q05_05_20260414_164304_574916",
+  "task": "Nhân viên được làm remote tối đa mấy ngày mỗi tuần?",
+  "supervisor_route": "retrieval_worker",
+  "route_reason": "default route",
+  "workers_called": [
+    "retrieval_worker",
+    "synthesis_worker"
+  ],
+  "mcp_tools_used": [],
+  "retrieved_sources": [
+    "sla_p1_2026.txt"
+  ],
+  "final_answer": "[PLACEHOLDER] Câu trả lời được tổng hợp từ 1 chunks.",
+  "confidence": 0.75,
+  "hitl_triggered": false,
+  "latency_ms": 0,
+  "timestamp": "2026-04-14T16:43:04"
+}

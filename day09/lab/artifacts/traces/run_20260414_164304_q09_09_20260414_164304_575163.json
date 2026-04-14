@@ -1,0 +1,20 @@
+{
+  "run_id": "run_20260414_164304_q09_09_20260414_164304_575163",
+  "task": "ERR-403-AUTH là lỗi gì và cách xử lý?",
+  "supervisor_route": "retrieval_worker",
+  "route_reason": "unknown error code + risk_high → human review | human approved → retrieval",
+  "workers_called": [
+    "human_review",
+    "retrieval_worker",
+    "synthesis_worker"
+  ],
+  "mcp_tools_used": [],
+  "retrieved_sources": [
+    "sla_p1_2026.txt"
+  ],
+  "final_answer": "[PLACEHOLDER] Câu trả lời được tổng hợp từ 1 chunks.",
+  "confidence": 0.75,
+  "hitl_triggered": true,
+  "latency_ms": 0,
+  "timestamp": "2026-04-14T16:43:04"
+}

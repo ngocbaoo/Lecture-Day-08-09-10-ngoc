@@ -1,0 +1,20 @@
+{
+  "run_id": "run_20260414_164304_q03_03_20260414_164304_574777",
+  "task": "Ai phải phê duyệt để cấp quyền Level 3?",
+  "supervisor_route": "policy_tool_worker",
+  "route_reason": "task contains policy/access keyword",
+  "workers_called": [
+    "policy_tool_worker",
+    "retrieval_worker",
+    "synthesis_worker"
+  ],
+  "mcp_tools_used": [],
+  "retrieved_sources": [
+    "sla_p1_2026.txt"
+  ],
+  "final_answer": "[PLACEHOLDER] Câu trả lời được tổng hợp từ 1 chunks.",
+  "confidence": 0.75,
+  "hitl_triggered": false,
+  "latency_ms": 0,
+  "timestamp": "2026-04-14T16:43:04"
+}

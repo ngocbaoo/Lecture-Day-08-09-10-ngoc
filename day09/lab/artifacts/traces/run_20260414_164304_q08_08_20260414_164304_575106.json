@@ -1,0 +1,19 @@
+{
+  "run_id": "run_20260414_164304_q08_08_20260414_164304_575106",
+  "task": "Quy trình xử lý sự cố P1 gồm mấy bước và bước đầu tiên là gì?",
+  "supervisor_route": "retrieval_worker",
+  "route_reason": "default route",
+  "workers_called": [
+    "retrieval_worker",
+    "synthesis_worker"
+  ],
+  "mcp_tools_used": [],
+  "retrieved_sources": [
+    "sla_p1_2026.txt"
+  ],
+  "final_answer": "[PLACEHOLDER] Câu trả lời được tổng hợp từ 1 chunks.",
+  "confidence": 0.75,
+  "hitl_triggered": false,
+  "latency_ms": 0,
+  "timestamp": "2026-04-14T16:43:04"
+}
