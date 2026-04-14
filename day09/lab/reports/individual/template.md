@@ -1,8 +1,8 @@
 # Báo Cáo Cá Nhân — Lab Day 09: Multi-Agent Orchestration
 
-**Họ và tên:** ___________  
+**Họ và tên:** Thái Minh Kiên 
 **Vai trò trong nhóm:** Supervisor Owner / Worker Owner / MCP Owner / Trace & Docs Owner  
-**Ngày nộp:** ___________  
+**Ngày nộp:** 14/04/2026  
 **Độ dài yêu cầu:** 500–800 từ
 
 ---
