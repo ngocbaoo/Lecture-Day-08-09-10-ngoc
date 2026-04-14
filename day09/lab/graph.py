@@ -97,29 +97,48 @@ def supervisor_node(state: AgentState) -> AgentState:
     # - mã lỗi không rõ (ERR-XXX), không đủ context → human_review
     # - còn lại → retrieval_worker
 
-    route = "retrieval_worker"         # TODO: thay bằng logic thực
-    route_reason = "default route"    # TODO: thay bằng lý do thực
+    # 0. Defaults
+    route = "retrieval_worker"
+    route_reason = "default routing"
     needs_tool = False
     risk_high = False
 
-    # Ví dụ routing cơ bản — nhóm phát triển thêm:
-    policy_keywords = ["hoàn tiền", "refund", "flash sale", "license", "cấp quyền", "access", "level 3"]
-    risk_keywords = ["emergency", "khẩn cấp", "2am", "không rõ", "err-"]
+    # 1. Keyword groups
+    policy_keywords = [
+        "hoàn tiền", "refund", "flash sale", "license",
+        "cấp quyền", "access", "level 3", "permission", "policy"
+    ]
 
+    retrieval_keywords = [
+        "sla", "ticket", "p1", "p2", "escalation",
+        "quy trình", "process", "bao lâu", "thời gian"
+    ]
+
+    risk_keywords = [
+        "emergency", "khẩn cấp", "urgent", "2am",
+        "production down", "critical"
+    ]
+
+    unknown_error_keywords = ["err-", "error code", "lỗi không rõ"]
+
+    # 2. Logic routing
+    # Check policy/access first as it usually implies tool usage
     if any(kw in task for kw in policy_keywords):
         route = "policy_tool_worker"
-        route_reason = f"task contains policy/access keyword"
+        route_reason = "task contains policy/access keywords"
         needs_tool = True
-
+    
+    # Check risk
     if any(kw in task for kw in risk_keywords):
         risk_high = True
-        route_reason += " | risk_high flagged"
+        route_reason = (route_reason + " | " if route_reason else "") + "risk_high flagged"
 
-    # Human review override
-    if risk_high and "err-" in task:
+    # Human review override: risk high + unknown error
+    if risk_high and any(kw in task for kw in unknown_error_keywords):
         route = "human_review"
-        route_reason = "unknown error code + risk_high → human review"
+        route_reason = "unknown error code + risk_high -> human review"
 
+    # Update state
     state["supervisor_route"] = route
     state["route_reason"] = route_reason
     state["needs_tool"] = needs_tool
@@ -159,7 +178,7 @@ def human_review_node(state: AgentState) -> AgentState:
     state["workers_called"].append("human_review")
 
     # Placeholder: tự động approve để pipeline tiếp tục
-    print(f"\n⚠️  HITL TRIGGERED")
+    print(f"\n[!] HITL TRIGGERED")
     print(f"   Task: {state['task']}")
     print(f"   Reason: {state['route_reason']}")
     print(f"   Action: Auto-approving in lab mode (set hitl_triggered=True)\n")
@@ -321,10 +340,11 @@ if __name__ == "__main__":
         "SLA xử lý ticket P1 là bao lâu?",
         "Khách hàng Flash Sale yêu cầu hoàn tiền vì sản phẩm lỗi — được không?",
         "Cần cấp quyền Level 3 để khắc phục P1 khẩn cấp. Quy trình là gì?",
+        "Gặp lỗi khẩn cấp ERR-99 khi truy cập production lúc 2am. Help!",
     ]
 
     for query in test_queries:
-        print(f"\n▶ Query: {query}")
+        print(f"\n>>> Query: {query}")
         result = run_graph(query)
         print(f"  Route   : {result['supervisor_route']}")
         print(f"  Reason  : {result['route_reason']}")
@@ -337,4 +357,4 @@ if __name__ == "__main__":
         trace_file = save_trace(result)
         print(f"  Trace saved → {trace_file}")
 
-    print("\n✅ graph.py test complete. Implement TODO sections in Sprint 1 & 2.")
+    print("\n[OK] graph.py test complete. Implement TODO sections in Sprint 1 & 2.")
