@@ -55,7 +55,8 @@ def run_test_questions(questions_file: str = "data/test_questions.json") -> list
             result["question_id"] = q_id
 
             # Save individual trace
-            trace_file = save_trace(result, f"artifacts/traces")
+            # Để None để dùng mặc định trong graph.py (day09/lab/artifacts/traces)
+            trace_file = save_trace(result)
             print(f"  ✓ route={result.get('supervisor_route', '?')}, "
                   f"conf={result.get('confidence', 0):.2f}, "
                   f"{result.get('latency_ms', 0)}ms")
@@ -102,8 +103,9 @@ def run_grading_questions(questions_file: str = "data/grading_questions.json") -
     with open(questions_file, encoding="utf-8") as f:
         questions = json.load(f)
 
-    os.makedirs("artifacts", exist_ok=True)
-    output_file = "artifacts/grading_run.jsonl"
+    artifacts_dir = os.path.join(os.path.dirname(__file__), "artifacts")
+    os.makedirs(artifacts_dir, exist_ok=True)
+    output_file = os.path.join(artifacts_dir, "grading_run.jsonl")
 
     print(f"\n🎯 Running GRADING questions — {len(questions)} câu")
     print(f"   Output → {output_file}")
