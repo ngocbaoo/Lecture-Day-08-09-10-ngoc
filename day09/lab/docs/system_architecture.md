@@ -1,7 +1,7 @@
 # System Architecture — Lab Day 09
 
-**Nhóm:** ___________  
-**Ngày:** ___________  
+**Nhóm:** D1-C401
+**Ngày:** 14/04/2026
 **Version:** 1.0
 
 ---
@@ -12,8 +12,7 @@
 
 **Pattern đã chọn:** Supervisor-Worker  
 **Lý do chọn pattern này (thay vì single agent):**
-
-_________________
+Hệ thống Multi-Agent cho phép chia nhỏ các trách nhiệm chuyên biệt. Trong khi Single-Agent (Day 08) dễ bị quá tải khi phải xử lý đồng thời cả việc tìm kiếm văn bản và thực thi các quy tắc chính sách phức tạp, thì mô hình Supervisor-Worker giúp tách biệt logic điều hướng (routing) và thực thi (execution). Điều này giúp tăng độ chính xác, dễ dàng kiểm soát rủi ro thông qua HITL và linh hoạt hơn khi cần tích hợp thêm các công cụ bên ngoài qua MCP.
 
 ---
 
@@ -51,8 +50,21 @@ Retrieval Worker     Policy Tool Worker
 
 **Sơ đồ thực tế của nhóm:**
 
-```
-[NHÓM ĐIỀN VÀO ĐÂY]
+```mermaid
+graph TD
+    User([User Request]) --> Sup{Supervisor Node}
+    
+    Sup -- "Knowledge Search" --> RW[Retrieval Worker]
+    Sup -- "Policy/Access" --> PTW[Policy Tool Worker]
+    Sup -- "High Risk" --> HR[Human Review]
+    
+    HR -- "Approve" --> RW
+    PTW -- "Need Data" --> MCP[MCP Server]
+    
+    RW --> SW[Synthesis Worker]
+    PTW --> SW
+    
+    SW --> Out([Final Answer])
 ```
 
 ---
@@ -63,46 +75,46 @@ Retrieval Worker     Policy Tool Worker
 
 | Thuộc tính | Mô tả |
 |-----------|-------|
-| **Nhiệm vụ** | ___________________ |
-| **Input** | ___________________ |
+| **Nhiệm vụ** | Phân tích yêu cầu, gán nhãn rủi ro và điều hướng task cho Worker phù hợp. |
+| **Input** | Câu hỏi của người dùng (task) |
 | **Output** | supervisor_route, route_reason, risk_high, needs_tool |
-| **Routing logic** | ___________________ |
-| **HITL condition** | ___________________ |
+| **Routing logic** | Kết hợp phân tích từ khóa chuyên sâu và LLM classification. |
+| **HITL condition** | Kích hoạt khi phát hiện mã lỗi lạ (ERR-XXX) hoặc truy cập khẩn cấp. |
 
 ### Retrieval Worker (`workers/retrieval.py`)
 
 | Thuộc tính | Mô tả |
 |-----------|-------|
-| **Nhiệm vụ** | ___________________ |
-| **Embedding model** | ___________________ |
-| **Top-k** | ___________________ |
-| **Stateless?** | Yes / No |
+| **Nhiệm vụ** | Tìm kiếm thông tin liên quan từ cơ sở dữ liệu vector ChromaDB. |
+| **Embedding model** | Sentence Transformers (all-MiniLM-L6-v2) |
+| **Top-k** | 3 (Mặc định) |
+| **Stateless?** | Yes |
 
 ### Policy Tool Worker (`workers/policy_tool.py`)
 
 | Thuộc tính | Mô tả |
 |-----------|-------|
-| **Nhiệm vụ** | ___________________ |
-| **MCP tools gọi** | ___________________ |
-| **Exception cases xử lý** | ___________________ |
+| **Nhiệm vụ** | Kiểm tra các quy tắc ngoại lệ của chính sách và gọi Tool MCP. |
+| **MCP tools gọi** | search_kb, get_ticket_info, check_access_permission |
+| **Exception cases xử lý** | Đơn hàng Flash Sale, Sản phẩm kỹ thuật số, Cấp quyền Level 3. |
 
 ### Synthesis Worker (`workers/synthesis.py`)
 
 | Thuộc tính | Mô tả |
 |-----------|-------|
-| **LLM model** | ___________________ |
-| **Temperature** | ___________________ |
-| **Grounding strategy** | ___________________ |
-| **Abstain condition** | ___________________ |
+| **LLM model** | gpt-4o / gpt-3.5-turbo |
+| **Temperature** | 0.0 |
+| **Grounding strategy** | Chỉ trả lời dựa trên context được cung cấp và trích dẫn nguồn. |
+| **Abstain condition** | Khi context rỗng hoặc không liên quan đến câu hỏi. |
 
 ### MCP Server (`mcp_server.py`)
 
 | Tool | Input | Output |
 |------|-------|--------|
 | search_kb | query, top_k | chunks, sources |
-| get_ticket_info | ticket_id | ticket details |
-| check_access_permission | access_level, requester_role | can_grant, approvers |
-| ___________________ | ___________________ | ___________________ |
+| get_ticket_info | ticket_id | ticket details (status, owner, priority) |
+| check_access_permission | access_level, role | can_grant, approver_list |
+| dispatch_tool | tool_name, tool_input | tool execution result |
 
 ---
 
@@ -120,7 +132,7 @@ Retrieval Worker     Policy Tool Worker
 | mcp_tools_used | list | Tool calls đã thực hiện | policy_tool ghi |
 | final_answer | str | Câu trả lời cuối | synthesis ghi |
 | confidence | float | Mức tin cậy | synthesis ghi |
-| ___________________ | ___________________ | ___________________ | ___________________ |
+| latency_ms | int | Thời gian thực thi | Graph ghi |
 
 ---
 
@@ -131,11 +143,10 @@ Retrieval Worker     Policy Tool Worker
 | Debug khi sai | Khó — không rõ lỗi ở đâu | Dễ hơn — test từng worker độc lập |
 | Thêm capability mới | Phải sửa toàn prompt | Thêm worker/MCP tool riêng |
 | Routing visibility | Không có | Có route_reason trong trace |
-| ___________________ | ___________________ | ___________________ |
+| Xử lý ngoại lệ | Dễ nhầm lẫn | Chính xác nhờ Worker chuyên biệt |
 
 **Nhóm điền thêm quan sát từ thực tế lab:**
-
-_________________
+Trong quá trình chạy lab, nhóm nhận thấy khi gặp các câu hỏi lắt léo về "Flash Sale", hệ thống Multi-Agent không bị "ảo tưởng" (hallucination) như Single-Agent vì Policy Worker được nạp trực tiếp bộ quy tắc ngoại lệ để kiểm tra trước khi Synthesis.
 
 ---
 
@@ -143,6 +154,6 @@ _________________
 
 > Nhóm mô tả những điểm hạn chế của kiến trúc hiện tại.
 
-1. ___________________
-2. ___________________
-3. ___________________
+1. Tốc độ phản hồi (latency) còn cao do phải trải qua nhiều bước trung gian và nạp mô hình.
+2. Việc chia sẻ State qua Dictionary đơn giản có thể gây lỗi nếu nhiều Worker ghi đè dữ liệu của nhau (cần cơ chế khóa hoặc merge state).
+3. Hệ thống chưa có khả năng tự sửa lỗi (Self-correction) nếu Supervisor chọn sai route lần đầu.

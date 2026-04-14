@@ -1,0 +1,20 @@
+{
+  "run_id": "run_20260414_171545_q02_02_20260414_171551_019243",
+  "task": "Khách hàng có thể yêu cầu hoàn tiền trong bao nhiêu ngày?",
+  "supervisor_route": "policy_tool_worker",
+  "route_reason": "task contains policy/access keywords",
+  "workers_called": [
+    "policy_tool_worker",
+    "retrieval_worker",
+    "synthesis_worker"
+  ],
+  "mcp_tools_used": [
+    "search_kb"
+  ],
+  "retrieved_sources": [],
+  "final_answer": "Khách hàng không thể yêu cầu hoàn tiền, vì chính sách quy định không được hoàn tiền. [tên_file]",
+  "confidence": 0.1,
+  "hitl_triggered": false,
+  "latency_ms": 5522,
+  "timestamp": "2026-04-14T17:15:51"
+}
