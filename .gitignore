@@ -1,6 +1,13 @@
 .DS_Store
 *.swp
 *~
+day09/lab/.env
+.env
+
+__pycache__
+
+#venv
+day9  
 
 # Grading questions — không public trước 17:00
 # day08/lab/data/grading_questions.json
