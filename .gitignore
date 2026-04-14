@@ -4,10 +4,10 @@
 day09/lab/.env
 .env
 
-__pycache__
-
+__pycache__/
+**/chroma_db/
 #venv
-day9  
+day9
 
 # Grading questions — không public trước 17:00
 # day08/lab/data/grading_questions.json
