@@ -6,7 +6,7 @@
 
 ---
 
-> **Tôi** phụ trách chính việc xây dựng hệ thống tài liệu (Documentation) và triển khai giám sát độ tươi mới của dữ liệu (Freshness Monitoring). Tôi đã hoàn thiện các file kiến trúc, contract và runbook, đồng thời đảm bảo các báo cáo chất lượng khớp với kết quả thực tế từ bộ phận Eval.
+> **Tôi** phụ trách chính việc xây dựng hệ thống tài liệu (Documentation) và triển khai giám sát độ tươi mới của dữ liệu (Freshness Monitoring). Tôi đã hoàn thiện các file kiến trúc, contract và runbook, đồng thời đảm bảo các báo cáo chất lượng.
 
 ---
 
@@ -20,40 +20,42 @@
 - `reports/group_report.md`: Tổng hợp kết quả từ các thành viên để hoàn thiện báo cáo nhóm.
 
 **Kết nối với thành viên khác:**
-Tôi làm việc chặt chẽ với **NX Hai (Embed/Eval Owner)** để lấy các thông số `embed_upsert count` và kết quả từ file `after.csv` nhằm chứng minh tính Idempotent và chất lượng retrieval.
+Tôi làm việc chặt chẽ với **Ingestion Owner** để lấy các thông số raw records và **Quality Owner** để cập nhật bảng `metric_impact` cũng như kết quả của bộ expectations vào báo cáo chất lượng.
 
 **Bằng chứng (commit / comment trong code):**
-Trong file `monitoring/freshness_check.py`, tôi đã xử lý logic so sánh `age_hours` với `sla_hours` (dòng 51-59). Kết quả chạy thực tế với `run_id=2026-04-15T08-41Z` đã báo **FAIL** (120.7h) đúng như dự kiến.
+Trong file `monitoring/freshness_check.py`, tôi đã xử lý logic so sánh `age_hours` với `sla_hours` (dòng 51-59) để trả về trạng thái PASS/FAIL cho pipeline.
 
 ---
 
 ## 2. Một quyết định kỹ thuật (100–150 từ)
 
-Tôi đã quyết định đặt **SLA Freshness là 24 giờ**. Quyết định này dựa trên yêu cầu nghiệp vụ của CS + IT Helpdesk, nơi các chính sách thường không thay đổi theo từng phút nhưng cần cập nhật trong ngày. Trong quá trình giám sát bản chạy `2026-04-15T08-41Z`, hệ thống đã báo FAIL do dữ liệu nguồn từ ngày 10/04. Quyết định kỹ thuật này giúp nhóm nhận diện được sự chậm trễ của hệ thống nguồn (Batch lag), từ đó đưa ra cảnh báo kịp thời trong **Runbook** để đội vận hành có phương án xử lý (ví dụ: manually trigger export).
+Trong quá trình thiết kế **Data Contract**, tôi đã quyết định chia các mức độ vi phạm của Quality expectations thành hai loại: **Halt** và **Warn**. 
+- Đối với các lỗi như sai chính sách hoàn tiền (`refund_no_stale_14d_window`) hoặc sai định dạng ngày tháng, tôi đặt mức độ là **Halt** để dừng ngay pipeline, ngăn chặn dữ liệu sai lọt vào Vector Store.
+- Đối với các lỗi như độ dài chunk hơi ngắn (`chunk_min_length_8`) hoặc lỗi hiển thị nhẹ (`mojibake`), tôi đặt mức độ là **Warn** để ghi nhận vào log nhưng vẫn cho phép pipeline chạy tiếp. Quyết định này giúp cân bằng giữa tính toàn vẹn tuyệt đối của dữ liệu quan trọng và tính liên tục của hệ thống đối với các lỗi nhỏ không gây rủi ro cao.
 
 ---
 
 ## 3. Một lỗi hoặc anomaly đã xử lý (100–150 từ)
 
-Tôi đã xử lý vấn đề **Data Drift** trong chính sách hoàn tiền.
-- **Triệu chứng:** Agent truy xuất nhầm thông tin 14 ngày làm việc.
-- **Phát hiện:** `expectation[refund_no_stale_14d_window]` báo FAIL trong log.
-- **Xử lý:** Tôi đã phối hợp tài liệu hóa quy trình này trong Runbook, hướng dẫn cách sử dụng `artifacts/quarantine/` để truy vết. Sau khi Cleaning Owner kích hoạt rule sửa lỗi, tôi xác nhận lại qua báo cáo Eval của bộ phận Embed: `contains_expected` đạt "yes" và `q_refund_window` trả về chính xác 7 ngày.
+Trong Sprint 3, khi thực hiện kịch bản "Inject Corruption", tôi đã phát hiện ra rằng nếu không có quy trình hậu kiểm, Agent sẽ truy xuất nhầm thông tin chính sách hoàn tiền cũ (14 ngày). 
+- **Triệu chứng:** Kết quả retrieval trả về văn bản chứa từ khóa "14 ngày làm việc".
+- **Phát hiện:** Expectation `refund_no_stale_14d_window` báo `passed=False` với mức độ `halt` trong log.
+- **Xử lý:** Tôi đã cập nhật **Runbook** để hướng dẫn đội vận hành cách kiểm tra file `artifacts/quarantine/` nhằm xác định chính xác các dòng bị lỗi. Sau đó, tôi phối hợp với Cleaning Owner để kích hoạt rule auto-fix, chuyển đổi dữ liệu về đúng 7 ngày và kiểm tra lại bằng `eval_retrieval.py` cho đến khi cột `hits_forbidden` trả về `False`.
 
 ---
 
 ## 4. Bằng chứng trước / sau (80–120 từ)
 
 Dựa trên kết quả chạy pipeline:
-- **Run ID:** `2026-04-15T08-41Z`.
-- **Evidence:** Cột `contains_expected` trong file `after.csv` đạt 4/4 "yes".
-- **Refund Query:** Trả về "7 ngày làm việc" (Đã fix).
-- **Freshness:** `FAIL {"age_hours": 120.701, "sla_hours": 24.0}`.
+- **Run ID (Bad):** `sprint3-bad` -> `hits_forbidden: True` (vẫn còn text "14 ngày").
+- **Run ID (Clean):** `sprint2-smoke-conda` -> `hits_forbidden: False`.
 
-Bằng chứng này khẳng định mặc dù dữ liệu chưa "tươi" (stale), nhưng logic làm sạch và retrieval vẫn hoạt động cực kỳ chính xác.
+Dữ liệu so sánh từ `quality_report.md`:
+`After (clean run): expectation[refund_no_stale_14d_window] OK (halt) :: violations=0`.
+`Before (inject bad): expectation[refund_no_stale_14d_window] FAIL (halt) :: violations=1`.
 
 ---
 
 ## 5. Cải tiến tiếp theo (40–80 từ)
 
-Tôi sẽ nâng cấp hệ thống giám sát để tự động gửi thông báo qua Slack khi Freshness check báo FAIL. Việc này giúp giảm thời gian phát hiện (MTTD) từ vài giờ (do phải check manual) xuống còn vài phút, đảm bảo đội vận hành can thiệp ngay khi dữ liệu nguồn bị trễ.
+Nếu có thêm thời gian, tôi sẽ tích hợp tính năng **Automated Alerting**. Thay vì phải chạy lệnh manual `python etl_pipeline.py freshness`, hệ thống sẽ tự động gửi thông báo qua Slack hoặc Email mỗi khi manifest ghi nhận `quality_halt_violations > 0` hoặc dữ liệu bị "stale" vượt quá SLA 24 giờ.
