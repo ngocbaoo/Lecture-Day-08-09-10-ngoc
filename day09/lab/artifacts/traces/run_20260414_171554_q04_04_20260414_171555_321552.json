@@ -1,0 +1,17 @@
+{
+  "run_id": "run_20260414_171554_q04_04_20260414_171555_321552",
+  "task": "Tài khoản bị khóa sau bao nhiêu lần đăng nhập sai?",
+  "supervisor_route": "retrieval_worker",
+  "route_reason": "default routing",
+  "workers_called": [
+    "retrieval_worker",
+    "synthesis_worker"
+  ],
+  "mcp_tools_used": [],
+  "retrieved_sources": [],
+  "final_answer": "Không đủ thông tin trong tài liệu nội bộ.",
+  "confidence": 0.1,
+  "hitl_triggered": false,
+  "latency_ms": 975,
+  "timestamp": "2026-04-14T17:15:55"
+}

@@ -1,0 +1,10 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+chroma_db/
+.pytest_cache/
+*.log
+day10/lab/.env

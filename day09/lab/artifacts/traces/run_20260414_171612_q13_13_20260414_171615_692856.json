@@ -1,0 +1,22 @@
+{
+  "run_id": "run_20260414_171612_q13_13_20260414_171615_692856",
+  "task": "Contractor cần Admin Access (Level 3) để khắc phục sự cố P1 đang active. Quy trình cấp quyền tạm thời như thế nào?",
+  "supervisor_route": "policy_tool_worker",
+  "route_reason": "task contains policy/access keywords",
+  "workers_called": [
+    "policy_tool_worker",
+    "retrieval_worker",
+    "synthesis_worker"
+  ],
+  "mcp_tools_used": [
+    "search_kb",
+    "get_ticket_info",
+    "check_access_permission"
+  ],
+  "retrieved_sources": [],
+  "final_answer": "Không đủ thông tin trong tài liệu nội bộ.",
+  "confidence": 0.1,
+  "hitl_triggered": false,
+  "latency_ms": 3686,
+  "timestamp": "2026-04-14T17:16:15"
+}

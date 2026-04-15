@@ -17,6 +17,7 @@ Gọi độc lập để test:
 
 import os
 import sys
+import random
 
 # ─────────────────────────────────────────────
 # Worker Contract (xem contracts/worker_contracts.yaml)
@@ -28,37 +29,25 @@ WORKER_NAME = "retrieval_worker"
 DEFAULT_TOP_K = 3
 
 
+# Biến toàn cục để cache mô hình trong bộ nhớ
+_MODEL_CACHE = None
+
 def _get_embedding_fn():
     """
-    Trả về embedding function.
-    TODO Sprint 1: Implement dùng OpenAI hoặc Sentence Transformers.
+    Sử dụng Sentence Transformers (offline) để tạo vector 384 chiều.
+    Tối ưu: Chỉ nạp mô hình 1 lần duy nhất vào bộ nhớ (_MODEL_CACHE).
     """
-    # Option A: Sentence Transformers (offline, không cần API key)
-    try:
-        from sentence_transformers import SentenceTransformer
-        model = SentenceTransformer("all-MiniLM-L6-v2")
-        def embed(text: str) -> list:
-            return model.encode([text])[0].tolist()
-        return embed
-    except ImportError:
-        pass
-
-    # Option B: OpenAI (cần API key)
-    try:
-        from openai import OpenAI
-        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        def embed(text: str) -> list:
-            resp = client.embeddings.create(input=text, model="text-embedding-3-small")
-            return resp.data[0].embedding
-        return embed
-    except ImportError:
-        pass
-
-    # Fallback: random embeddings cho test (KHÔNG dùng production)
-    import random
+    global _MODEL_CACHE
+    from sentence_transformers import SentenceTransformer
+    
+    if _MODEL_CACHE is None:
+        print("  [retrieval] Loading SentenceTransformer model into memory...")
+        _MODEL_CACHE = SentenceTransformer("all-MiniLM-L6-v2")
+    
     def embed(text: str) -> list:
-        return [random.random() for _ in range(384)]
-    print("⚠️  WARNING: Using random embeddings (test only). Install sentence-transformers.")
+        # Sử dụng mô hình đã nạp sẵn
+        return _MODEL_CACHE.encode([text])[0].tolist()
+        
     return embed
 
 
@@ -68,16 +57,16 @@ def _get_collection():
     TODO Sprint 2: Đảm bảo collection đã được build từ Step 3 trong README.
     """
     import chromadb
-    client = chromadb.PersistentClient(path="./chroma_db")
+    client = chromadb.PersistentClient(path="day09/lab/chroma_db")
     try:
-        collection = client.get_collection("day09_docs")
+        collection = client.get_collection("rag_lab")
     except Exception:
         # Auto-create nếu chưa có
         collection = client.get_or_create_collection(
-            "day09_docs",
+            "rag_lab",
             metadata={"hnsw:space": "cosine"}
         )
-        print(f"⚠️  Collection 'day09_docs' chưa có data. Chạy index script trong README trước.")
+        print(f"⚠️  Collection 'rag_lab' chưa có data. Chạy index script trong README trước.")
     return collection
 
 
@@ -195,7 +184,7 @@ if __name__ == "__main__":
     ]
 
     for query in test_queries:
-        print(f"\n▶ Query: {query}")
+        print(f"\n> Query: {query}")
         result = run({"task": query})
         chunks = result.get("retrieved_chunks", [])
         print(f"  Retrieved: {len(chunks)} chunks")

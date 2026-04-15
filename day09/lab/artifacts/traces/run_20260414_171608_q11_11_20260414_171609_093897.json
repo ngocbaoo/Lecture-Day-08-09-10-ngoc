@@ -1,0 +1,17 @@
+{
+  "run_id": "run_20260414_171608_q11_11_20260414_171609_093897",
+  "task": "Ticket P1 được tạo lúc 22:47. Ai sẽ nhận thông báo đầu tiên và qua kênh nào? Escalation xảy ra lúc mấy giờ?",
+  "supervisor_route": "retrieval_worker",
+  "route_reason": "default routing",
+  "workers_called": [
+    "retrieval_worker",
+    "synthesis_worker"
+  ],
+  "mcp_tools_used": [],
+  "retrieved_sources": [],
+  "final_answer": "Không đủ thông tin trong tài liệu nội bộ.",
+  "confidence": 0.1,
+  "hitl_triggered": false,
+  "latency_ms": 978,
+  "timestamp": "2026-04-14T17:16:09"
+}

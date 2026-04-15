@@ -1,0 +1,21 @@
+{
+  "run_id": "run_20260414_171551_q03_03_20260414_171554_344794",
+  "task": "Ai phải phê duyệt để cấp quyền Level 3?",
+  "supervisor_route": "policy_tool_worker",
+  "route_reason": "task contains policy/access keywords",
+  "workers_called": [
+    "policy_tool_worker",
+    "retrieval_worker",
+    "synthesis_worker"
+  ],
+  "mcp_tools_used": [
+    "search_kb",
+    "check_access_permission"
+  ],
+  "retrieved_sources": [],
+  "final_answer": "Không đủ thông tin trong tài liệu nội bộ.",
+  "confidence": 0.1,
+  "hitl_triggered": false,
+  "latency_ms": 3324,
+  "timestamp": "2026-04-14T17:15:54"
+}

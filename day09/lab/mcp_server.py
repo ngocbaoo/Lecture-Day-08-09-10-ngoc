@@ -337,12 +337,12 @@ if __name__ == "__main__":
     print("=" * 60)
 
     # 1. Discover tools
-    print("\n📋 Available Tools:")
+    print("\n[TOOLS] Available Tools:")
     for tool in list_tools():
-        print(f"  • {tool['name']}: {tool['description'][:60]}...")
+        print(f"  * {tool['name']}: {tool['description'][:60]}...")
 
     # 2. Test search_kb
-    print("\n🔍 Test: search_kb")
+    print("\n[TEST] search_kb")
     result = dispatch_tool("search_kb", {"query": "SLA P1 resolution time", "top_k": 2})
     if result.get("chunks"):
         for c in result["chunks"]:
@@ -351,14 +351,14 @@ if __name__ == "__main__":
         print(f"  Result: {result}")
 
     # 3. Test get_ticket_info
-    print("\n🎫 Test: get_ticket_info")
+    print("\n[TEST] get_ticket_info")
     ticket = dispatch_tool("get_ticket_info", {"ticket_id": "P1-LATEST"})
     print(f"  Ticket: {ticket.get('ticket_id')} | {ticket.get('priority')} | {ticket.get('status')}")
     if ticket.get("notifications_sent"):
         print(f"  Notifications: {ticket['notifications_sent']}")
 
     # 4. Test check_access_permission
-    print("\n🔐 Test: check_access_permission (Level 3, emergency)")
+    print("\n[TEST] check_access_permission (Level 3, emergency)")
     perm = dispatch_tool("check_access_permission", {
         "access_level": 3,
         "requester_role": "contractor",
@@ -370,9 +370,9 @@ if __name__ == "__main__":
     print(f"  notes: {perm.get('notes')}")
 
     # 5. Test invalid tool
-    print("\n❌ Test: invalid tool")
+    print("\n[TEST] invalid tool")
     err = dispatch_tool("nonexistent_tool", {})
     print(f"  Error: {err.get('error')}")
 
-    print("\n✅ MCP server test done.")
+    print("\n[DONE] MCP server test done.")
     print("\nTODO Sprint 3: Implement HTTP server nếu muốn bonus +2.")

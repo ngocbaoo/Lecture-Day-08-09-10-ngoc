@@ -51,15 +51,15 @@ def _call_llm(messages: list) -> str:
         pass
 
     # Option B: Gemini
-    try:
-        import google.generativeai as genai
-        genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        combined = "\n".join([m["content"] for m in messages])
-        response = model.generate_content(combined)
-        return response.text
-    except Exception:
-        pass
+    # try:
+    #     import google.generativeai as genai
+    #     genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+    #     model = genai.GenerativeModel("gemini-1.5-flash")
+    #     combined = "\n".join([m["content"] for m in messages])
+    #     response = model.generate_content(combined)
+    #     return response.text
+    # except Exception:
+    #     pass
 
     # Fallback: trả về message báo lỗi (không hallucinate)
     return "[SYNTHESIS ERROR] Không thể gọi LLM. Kiểm tra API key trong .env."
@@ -97,23 +97,60 @@ def _estimate_confidence(chunks: list, answer: str, policy_result: dict) -> floa
 
     TODO Sprint 2: Có thể dùng LLM-as-Judge để tính confidence chính xác hơn.
     """
+    import json
+    import os
+
+    # Fallback cơ bản nếu không có dữ liệu
     if not chunks:
-        return 0.1  # Không có evidence → low confidence
-
+        return 0.1
     if "Không đủ thông tin" in answer or "không có trong tài liệu" in answer.lower():
-        return 0.3  # Abstain → moderate-low
+        return 0.3
 
-    # Weighted average của chunk scores
-    if chunks:
-        avg_score = sum(c.get("score", 0) for c in chunks) / len(chunks)
-    else:
-        avg_score = 0
+    try:
+        from openai import OpenAI
+        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-    # Penalty nếu có exceptions (phức tạp hơn)
-    exception_penalty = 0.05 * len(policy_result.get("exceptions_found", []))
+        # Chuẩn bị dữ liệu cho Judge
+        context_text = "\n".join([f"[{i+1}] {c.get('text', '')}" for i, c in enumerate(chunks)])
+        policy_info = json.dumps(policy_result, ensure_ascii=False)
 
-    confidence = min(0.95, avg_score - exception_penalty)
-    return round(max(0.1, confidence), 2)
+        prompt = f"""
+Bạn là một giám khảo AI (LLM-as-a-Judge) công bằng.
+Nhiệm vụ: Đánh giá độ tin cậy (confidence score) của câu trả lời dựa trên tài liệu tham khảo và chính sách.
+
+Tài liệu tham khảo:
+{context_text}
+
+Chính sách & Ngoại lệ:
+{policy_info}
+
+Câu trả lời cần đánh giá:
+{answer}
+
+Tiêu chí:
+- 1.0: Câu trả lời hoàn toàn dựa trên tài liệu, có dẫn nguồn đúng, xử lý đủ ngoại lệ.
+- 0.5: Câu trả lời có căn cứ nhưng còn thiếu sót hoặc không chắc chắn.
+- 0.1: Câu trả lời sai lệch tài liệu hoặc bị bịa đặt (hallucination).
+
+Trả về kết quả dưới định dạng JSON duy nhất: {{"confidence": <float>}}
+"""
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "system", "content": "Bạn là giám khảo AI chuyên nghiệp."},
+                      {"role": "user", "content": prompt}],
+            response_format={"type": "json_object"},
+            temperature=0.0
+        )
+        data = json.loads(response.choices[0].message.content)
+        return round(float(data.get("confidence", 0.5)), 2)
+
+    except Exception as e:
+        print(f"⚠️ LLM-as-Judge failed (fallback to rule-based): {e}")
+        # Logic rule-based cũ làm phương án dự phòng
+        avg_score = sum(c.get("score", 0) for c in chunks) / len(chunks) if chunks else 0
+        exception_penalty = 0.05 * len(policy_result.get("exceptions_found", []))
+        confidence = min(0.95, avg_score - exception_penalty)
+        return round(max(0.1, confidence), 2)
 
 
 def synthesize(task: str, chunks: list, policy_result: dict) -> dict:

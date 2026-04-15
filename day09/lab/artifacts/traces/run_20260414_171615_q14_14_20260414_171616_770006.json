@@ -1,0 +1,17 @@
+{
+  "run_id": "run_20260414_171615_q14_14_20260414_171616_770006",
+  "task": "Nhân viên vừa vào thử việc (trong probation period) muốn làm remote vì lý do cá nhân. Điều kiện là gì?",
+  "supervisor_route": "retrieval_worker",
+  "route_reason": "default routing",
+  "workers_called": [
+    "retrieval_worker",
+    "synthesis_worker"
+  ],
+  "mcp_tools_used": [],
+  "retrieved_sources": [],
+  "final_answer": "Không đủ thông tin trong tài liệu nội bộ.",
+  "confidence": 0.1,
+  "hitl_triggered": false,
+  "latency_ms": 1075,
+  "timestamp": "2026-04-14T17:16:16"
+}

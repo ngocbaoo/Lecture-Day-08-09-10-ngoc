@@ -1,0 +1,20 @@
+{
+  "run_id": "run_20260414_171557_q07_07_20260414_171601_365159",
+  "task": "Sản phẩm kỹ thuật số (license key) có được hoàn tiền không?",
+  "supervisor_route": "policy_tool_worker",
+  "route_reason": "task contains policy/access keywords",
+  "workers_called": [
+    "policy_tool_worker",
+    "retrieval_worker",
+    "synthesis_worker"
+  ],
+  "mcp_tools_used": [
+    "search_kb"
+  ],
+  "retrieved_sources": [],
+  "final_answer": "Sản phẩm kỹ thuật số (license key) không được hoàn tiền. [POLICY EXCEPTIONS]",
+  "confidence": 0.1,
+  "hitl_triggered": false,
+  "latency_ms": 3879,
+  "timestamp": "2026-04-14T17:16:01"
+}

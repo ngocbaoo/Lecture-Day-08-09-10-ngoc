@@ -1,0 +1,26 @@
+[
+  {
+    "id": "gq_d10_01",
+    "question": "Khách hàng có bao nhiêu ngày để yêu cầu hoàn tiền kể từ khi xác nhận đơn?",
+    "must_contain_any": ["7 ngày", "7 ngày làm việc"],
+    "must_not_contain": ["14 ngày làm việc"],
+    "expect_top1_doc_id": "policy_refund_v4",
+    "note": "Test refund window fix (14d → 7d); must not appear in top-k"
+  },
+  {
+    "id": "gq_d10_02",
+    "question": "SLA phản hồi đầu tiên cho ticket P1 là bao lâu?",
+    "must_contain_any": ["15 phút"],
+    "must_not_contain": [],
+    "expect_top1_doc_id": "sla_p1_2026",
+    "note": "Chunk từ sla_p1_2026; verify version freshness"
+  },
+  {
+    "id": "gq_d10_03",
+    "question": "Theo chính sách nghỉ phép hiện hành (2026), nhân viên dưới 3 năm kinh nghiệm được bao nhiêu ngày phép năm?",
+    "must_contain_any": ["12 ngày", "12 ngày phép năm"],
+    "must_not_contain": ["10 ngày phép năm"],
+    "expect_top1_doc_id": "hr_leave_policy",
+    "note": "Merit: must not see stale 10d policy in top-k; requires effective_date filtering"
+  }
+]
