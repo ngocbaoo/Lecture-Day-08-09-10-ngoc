@@ -3,7 +3,7 @@
 
 version: "1.0"
 dataset: "kb_chunk_export"
-owner_team: "__TODO__"
+owner_team: "D1-C401"
 
 schema_cleaned:
   chunk_id:
@@ -32,11 +32,22 @@ quality_rules:
   - id: "no_stale_refund_window"
     description: "Không được để chunk policy refund chứa cửa sổ 14 ngày (lệch so với v4 = 7 ngày)"
     severity: "halt"
+  - id: "normalize mojibake text"
+    description: "Phát hiện lỗi hiển thị văn bản (mojibake) trong chunk_text"
+    severity: "warn"
+  - id: "normalize exported_at ISO8601"
+    description: "chuẩn hóa date theo định dạng ISO8601."
+    severity: "halt"
+  - id: "reject future effective_date"
+    description: "Cách ly effective_date muộn hơn ngày chạy pipeline"
+    severity: "warn"
+    
+  
 
 freshness:
   measured_at: "publish"  # ingest | cleaned | publish
   sla_hours: 24
-  alert_channel: "__TODO__"
+  alert_channel: "manual_check_in_runbook"
 
 canonical_sources:
   - path: "data/docs/policy_refund_v4.txt"

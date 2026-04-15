@@ -9,10 +9,13 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import os
 import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
+
+import yaml
 
 # Khớp export hợp lệ trong lab (mở rộng khi nhóm thêm doc mới — phải đồng bộ contract).
 ALLOWED_DOC_IDS = frozenset(
@@ -27,6 +30,9 @@ ALLOWED_DOC_IDS = frozenset(
 _ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _DMY_SLASH = re.compile(r"^(\d{2})/(\d{2})/(\d{4})$")
 _MOJIBAKE_HINTS = ("Ã", "á»", "Ä", "â€™", "â€“", "â€", "Â")
+
+ROOT = Path(__file__).resolve().parents[1]
+CONTRACT_PATH = ROOT / "contracts" / "data_contract.yaml"
 
 
 def _norm_text(s: str) -> str:
@@ -102,6 +108,26 @@ def _repair_mojibake(text: str) -> Tuple[str, bool]:
     return fixed, changed
 
 
+def _load_contract() -> Dict[str, Any]:
+    if not CONTRACT_PATH.is_file():
+        return {}
+    with CONTRACT_PATH.open(encoding="utf-8") as f:
+        data = yaml.safe_load(f) or {}
+    return data if isinstance(data, dict) else {}
+
+
+def _get_hr_leave_cutoff() -> str:
+    env_cutoff = (os.environ.get("HR_LEAVE_MIN_EFFECTIVE_DATE") or "").strip()
+    if env_cutoff:
+        return env_cutoff
+    contract = _load_contract()
+    policy_versioning = contract.get("policy_versioning") or {}
+    contract_cutoff = (policy_versioning.get("hr_leave_min_effective_date") or "").strip()
+    if contract_cutoff:
+        return contract_cutoff
+    return "2026-01-01"
+
+
 def load_raw_csv(path: Path) -> List[Dict[str, str]]:
     rows: List[Dict[str, str]] = []
     with path.open(encoding="utf-8", newline="") as f:
@@ -134,6 +160,8 @@ def clean_rows(
     text_repaired_count = 0
     exported_at_normalized_count = 0
     future_effective_date_count = 0
+    stale_hr_quarantine_count = 0
+    hr_leave_cutoff = _get_hr_leave_cutoff()
 
     for raw in rows:
         doc_id = raw.get("doc_id", "")
@@ -153,12 +181,14 @@ def clean_rows(
             quarantine.append({**raw, "reason": eff_err, "effective_date_raw": eff_raw})
             continue
 
-        if doc_id == "hr_leave_policy" and eff_norm < "2026-01-01":
+        if doc_id == "hr_leave_policy" and eff_norm < hr_leave_cutoff:
+            stale_hr_quarantine_count += 1
             quarantine.append(
                 {
                     **raw,
                     "reason": "stale_hr_policy_effective_date",
                     "effective_date_normalized": eff_norm,
+                    "hr_leave_cutoff_used": hr_leave_cutoff,
                 }
             )
             continue
@@ -226,6 +256,8 @@ def clean_rows(
         "text_repaired_count": text_repaired_count,
         "exported_at_normalized_count": exported_at_normalized_count,
         "future_effective_date_count": future_effective_date_count,
+        "stale_hr_quarantine_count": stale_hr_quarantine_count,
+        "hr_leave_cutoff_used": hr_leave_cutoff,
     }
     return cleaned, quarantine
 

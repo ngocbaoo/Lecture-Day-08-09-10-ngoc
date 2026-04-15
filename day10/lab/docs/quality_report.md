@@ -60,24 +60,24 @@ HR versioning remained stable in both runs:
 
 ## 3. Retrieval / embed status
 
-The intended next step was to run `eval_retrieval.py` for before/after retrieval CSV evidence on top of Chroma.
+Retrieval evaluation was executed successfully and the following artifacts are available:
 
-Current blocker:
+- `artifacts/eval/before.csv`
+- `artifacts/eval/after.csv`
+- `artifacts/eval/before_after_eval.csv`
 
-- `chromadb.PersistentClient(...)` fails in the `vinai` environment with `disk I/O error`
-- this is a storage/runtime issue in Chroma, not a cleaning/expectation logic failure
+Current observed retrieval output:
 
-Impact:
+- `q_refund_window`: `contains_expected=yes`, `hits_forbidden=no`
+- `q_leave_version`: `contains_expected=yes`, `hits_forbidden=no`, `top1_doc_expected=yes`
+- `q_p1_sla`: `contains_expected=yes`
+- `q_lockout`: `contains_expected=yes`
 
-- quality evidence for Sprint 3 is available through cleaned CSV diff and expectation logs
-- retrieval CSV evidence is pending until the Chroma storage issue is fixed by the embed owner
+Interpretation:
 
-Recommended follow-up after Chroma is healthy:
-
-1. Run the bad/inject pipeline again with the same `--no-refund-fix --skip-validate` flags.
-2. Run `python eval_retrieval.py --out artifacts/eval/after_inject_bad.csv`.
-3. Run the clean pipeline normally.
-4. Run `python eval_retrieval.py --out artifacts/eval/after_clean_fix.csv`.
+- the current published collection is already aligned with the cleaned data snapshot
+- retrieval artifacts support the conclusion that stale refund and stale HR content are not surfacing in top-k for the current clean state
+- for Sprint 3, the strongest corruption evidence still comes from the expectation log and the cleaned CSV diff between `sprint3-bad` and `sprint2-smoke-conda`
 
 ---
 
@@ -92,12 +92,39 @@ How it is detected:
 
 - expectation suite catches the stale refund policy before publish in normal mode
 - cleaned CSV diff shows the stale `14 ngay` row directly
-- once Chroma storage is fixed, retrieval should degrade for `q_refund_window`
+- retrieval artifacts should be kept together with the log evidence so the report shows both data-layer detection and user-facing effect
 
 ---
 
 ## 5. Limits / unfinished work
 
-- Retrieval CSV evidence could not be generated yet because Chroma storage is failing with `disk I/O error`.
 - `text_repaired_count` stayed `0` on the sample export, so mojibake repair still needs an injected case to demonstrate measurable impact.
 - `future_effective_date_count` stayed `0` on the sample export, so that rule should be demonstrated with a synthetic future-dated row in Sprint 3 extension.
+
+---
+
+## 6. Distinction evidence - dynamic versioning
+
+To avoid hard-coding the HR policy cutoff directly in code, the cleaning rule now reads `HR_LEAVE_MIN_EFFECTIVE_DATE` from environment first, and falls back to `contracts/data_contract.yaml` field `policy_versioning.hr_leave_min_effective_date`.
+
+Evidence runs:
+
+- `distinction-contract`: default cutoff from contract = `2026-01-01`
+- `distinction-env-override`: env override cutoff = `2025-01-01`
+
+Observed impact:
+
+- In `run_distinction-contract.log`, `hr_leave_cutoff_used=2026-01-01`, `stale_hr_quarantine_count=2`, `cleaned_records=6`, `quarantine_records=17`
+- In `run_distinction-env-override.log`, `hr_leave_cutoff_used=2025-01-01`, `stale_hr_quarantine_count=0`, `cleaned_records=7`, `quarantine_records=16`
+
+Behavioral difference:
+
+- With the contract cutoff, the stale HR 2025 row is quarantined and `expectation[hr_leave_no_stale_10d_annual]` stays `OK`
+- With the env override, the 2025 HR row enters the cleaned snapshot and `expectation[hr_leave_no_stale_10d_annual] FAIL (halt) :: violations=1`
+
+Artifact references:
+
+- `artifacts/logs/run_distinction-contract.log`
+- `artifacts/logs/run_distinction-env-override.log`
+- `artifacts/cleaned/cleaned_distinction-contract.csv`
+- `artifacts/cleaned/cleaned_distinction-env-override.csv`

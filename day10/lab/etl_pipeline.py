@@ -78,7 +78,13 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     log(f"cleaned_records={len(cleaned)}")
     log(f"quarantine_records={len(quarantine)}")
-    for metric_name in ("text_repaired_count", "exported_at_normalized_count", "future_effective_date_count"):
+    for metric_name in (
+        "text_repaired_count",
+        "exported_at_normalized_count",
+        "future_effective_date_count",
+        "stale_hr_quarantine_count",
+        "hr_leave_cutoff_used",
+    ):
         if metric_name in clean_metrics:
             log(f"{metric_name}={clean_metrics[metric_name]}")
     log(f"cleaned_csv={cleaned_path.relative_to(ROOT)}")
