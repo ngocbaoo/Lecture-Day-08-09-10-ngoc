@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "generated_at": "2026-04-14T17:17:02.625171",
   "day08_single_agent": {
     "total_questions": 15,
@@ -6,6 +7,15 @@
     "avg_latency_ms": 1250,
     "abstain_rate": 0.1,
     "multi_hop_accuracy": 0.7
+=======
+  "generated_at": "2026-04-14T16:43:04.576075",
+  "day08_single_agent": {
+    "total_questions": 15,
+    "avg_confidence": 0.0,
+    "avg_latency_ms": 0,
+    "abstain_rate": 0,
+    "multi_hop_accuracy": 0
+>>>>>>> origin/nxhai
   },
   "day09_multi_agent": {
     "total_traces": 15,
@@ -13,6 +23,7 @@
       "retrieval_worker": "8/15 (53%)",
       "policy_tool_worker": "7/15 (46%)"
     },
+<<<<<<< HEAD
     "avg_confidence": 0.1,
     "avg_latency_ms": 3939,
     "mcp_usage_rate": "7/15 (46%)",
@@ -23,6 +34,23 @@
     "routing_visibility": "Day 09 có route_reason cho từng câu → dễ debug hơn Day 08",
     "latency_delta": "+2689 ms (Day09 - Day08)",
     "accuracy_delta": "confidence delta -0.740 (Day09 - Day08)",
+=======
+    "avg_confidence": 0.75,
+    "avg_latency_ms": 0,
+    "mcp_usage_rate": "0/15 (0%)",
+    "hitl_rate": "1/15 (6%)",
+    "top_sources": [
+      [
+        "sla_p1_2026.txt",
+        15
+      ]
+    ]
+  },
+  "analysis": {
+    "routing_visibility": "Day 09 có route_reason cho từng câu → dễ debug hơn Day 08",
+    "latency_delta": "+0 ms (Day09 - Day08)",
+    "accuracy_delta": "confidence delta +0.750 (Day09 - Day08)",
+>>>>>>> origin/nxhai
     "debuggability": "Multi-agent: có thể test từng worker độc lập. Single-agent: không thể.",
     "mcp_benefit": "Day 09 có thể extend capability qua MCP không cần sửa core. Day 08 phải hard-code."
   }
