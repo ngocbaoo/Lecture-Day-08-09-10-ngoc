@@ -1,5 +1,6 @@
 # Báo Cáo Nhóm — Lab Day 09: Multi-Agent Orchestration
 
+<<<<<<< HEAD
 **Tên nhóm:** D1-C401
 **Thành viên:**
 | Tên | Vai trò | Email |
@@ -11,6 +12,19 @@
 
 **Ngày nộp:** 14/04/2026
 **Repo:** https://github.com/ngocbaoo/Lecture-Day-08-09-10/tree/main/day09/lab
+=======
+**Tên nhóm:** ___________  
+**Thành viên:**
+| Tên | Vai trò | Email |
+|-----|---------|-------|
+| ___ | Supervisor Owner | ___ |
+| ___ | Worker Owner | ___ |
+| ___ | MCP Owner | ___ |
+| ___ | Trace & Docs Owner | ___ |
+
+**Ngày nộp:** ___________  
+**Repo:** ___________  
+>>>>>>> upstream/main
 **Độ dài khuyến nghị:** 600–1000 từ
 
 ---
@@ -31,20 +45,35 @@
 > MCP tools nào được tích hợp. Dùng kết quả từ `docs/system_architecture.md`.
 
 **Hệ thống tổng quan:**
+<<<<<<< HEAD
 Nhóm triển khai hệ thống Multi-Agent theo mô hình **Supervisor-Worker**. Hệ thống bao gồm 3 Worker chuyên trách: `retrieval_worker` để truy xuất tri thức, `policy_tool_worker` để phân tích chính sách và gọi Tool, `synthesis_worker` để tổng hợp câu trả lời. Supervisor đóng vai trò điều phối luồng State thông qua `graph.py`, đảm bảo tính minh bạch và có thể trace log cho từng bước xử lý.
+=======
+
+_________________
+>>>>>>> upstream/main
 
 **Routing logic cốt lõi:**
 > Mô tả logic supervisor dùng để quyết định route (keyword matching, LLM classifier, rule-based, v.v.)
 
+<<<<<<< HEAD
 Supervisor sử dụng cơ chế **Hybrid Routing** (Kết hợp từ khóa và phân tích rủi ro). Hệ thống quét tìm các từ khóa đặc thù như "hoàn tiền", "cấp quyền" để đẩy sang Policy Worker. Đồng thời, Supervisor cũng nhận diện các ca rủi ro cao hoặc mã lỗi chưa xác định (ERR-XXX) để kích hoạt Human-in-the-loop (HITL), đảm bảo an toàn trước khi hành động.
+=======
+_________________
+>>>>>>> upstream/main
 
 **MCP tools đã tích hợp:**
 > Liệt kê tools đã implement và 1 ví dụ trace có gọi MCP tool.
 
+<<<<<<< HEAD
 - `search_kb`: Công cụ tìm kiếm tri thức nội bộ từ file PDF/Markdown.
 - `get_ticket_info`: Truy vấn thông tin ticket từ hệ thống Jira giả lập.
 - `check_access_permission`: Kiểm tra quyền hạn và trả về danh sách người phê duyệt cần thiết.
 Ví dụ: Trong trace câu hỏi về cấp quyền Level 3, hệ thống đã gọi tool `check_access_permission` và trả về kết quả `can_grant: true` cùng danh sách 3 người phê duyệt (Line Manager, IT Admin, Security).
+=======
+- `search_kb`: ___________________
+- `get_ticket_info`: ___________________
+- ___________________: ___________________
+>>>>>>> upstream/main
 
 ---
 
@@ -53,10 +82,18 @@ Ví dụ: Trong trace câu hỏi về cấp quyền Level 3, hệ thống đã g
 > Chọn **1 quyết định thiết kế** mà nhóm thảo luận và đánh đổi nhiều nhất.
 > Phải có: (a) vấn đề gặp phải, (b) các phương án cân nhắc, (c) lý do chọn phương án đã chọn.
 
+<<<<<<< HEAD
 **Quyết định:** Sử dụng SentenceTransformer cục bộ thay vì OpenAI Embeddings kết hợp với cơ chế **Singleton Model Cache**.
 
 **Bối cảnh vấn đề:**
 Trong Sprint 2, nhóm gặp lỗi **"Dimension mismatch"** do Database cũ từ Day 08 dùng 384 chiều trong khi mặc định mới là 1536 chiều. Ngoài ra, việc nạp mô hình Embedding mỗi khi chạy query mất tới 10-15 giây, gây ra trải nghiệm người dùng cực kỳ chậm chạp.
+=======
+**Quyết định:** ___________________
+
+**Bối cảnh vấn đề:**
+
+_________________
+>>>>>>> upstream/main
 
 **Các phương án đã cân nhắc:**
 

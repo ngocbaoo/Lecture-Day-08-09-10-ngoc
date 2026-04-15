@@ -1,6 +1,7 @@
 .DS_Store
 *.swp
 *~
+<<<<<<< HEAD
 __pycache__/
 .env
 **/chroma_db/
@@ -11,3 +12,4 @@ __pycache__/
 # day09/lab/data/grading_questions.json
 # day10/lab/data/grading_questions.json
 day09/lab/.env
+

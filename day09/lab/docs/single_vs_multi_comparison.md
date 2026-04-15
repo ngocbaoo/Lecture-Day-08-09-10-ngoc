@@ -65,7 +65,6 @@
 
 > Khi pipeline trả lời sai, mất bao lâu để tìm ra nguyên nhân?
 
-
 ### Day 08 — Debug workflow
 ```
 Khi answer sai → phải đọc toàn bộ RAG pipeline code → tìm lỗi ở indexing/retrieval/generation
